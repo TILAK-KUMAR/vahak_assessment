@@ -85,12 +85,29 @@ class _HomeDetailsState extends State<HomeDetails> {
                       color: MyColors.toolbarBlue,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Quiz(topic: _catagory,),
-                          ), //MaterialPageRoute
-                        );
+                        Navigator.of(context).push(new PageRouteBuilder(
+                            opaque: true,
+                            transitionDuration: const Duration(milliseconds: 500),
+                            pageBuilder: (BuildContext context, _, __) {
+                              return Quiz(topic: _catagory,);
+                            },
+                            transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+
+                              return new SlideTransition(
+                                child: child,
+                                position: new Tween<Offset>(
+                                  begin: const Offset(1, 0),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                              );
+                            }
+                        ));
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Quiz(topic: _catagory,),
+                        //   ), //MaterialPageRoute
+                        // );
                       },
                       child: Text('TAKE QUIZ',style: TextStyle(
                           color: MyColors.colorwhite,fontSize: 18
@@ -180,7 +197,9 @@ class _HomeDetailsState extends State<HomeDetails> {
       desc_txt = desc;
 
       videoPlayerController = VideoPlayerController.network(_videoURL);
+
       chewieController = ChewieController(
+
           videoPlayerController: videoPlayerController,
           aspectRatio: 16 / 9,
           autoPlay: true,

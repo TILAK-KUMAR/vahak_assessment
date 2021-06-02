@@ -24,6 +24,8 @@ class _QuizState extends State<Quiz> {
   int _duration = 10;
   List _questions = [];
   int question_number = 1;
+  String timetaken;
+  int totalTimeTaken = 0;
   bool isQuizCompleted = false;
   var marks;
 
@@ -57,7 +59,11 @@ class _QuizState extends State<Quiz> {
             elevation: 0.0,
           ),
           body:_start!=0?showCountdownTimer():question_number==11?Container(
-            color:MyColors.colorwhite,height: MediaQuery.of(context).size.height,
+            height: MediaQuery.of(context).size.height,
+            color: MyColors.toolbarBlue,
+            child: Center(
+              child: CircularProgressIndicator(color: MyColors.colorwhite,),
+            ),
           ):quizWidget()
       );
   }
@@ -68,9 +74,11 @@ class _QuizState extends State<Quiz> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          question_number==11?Text('${Constants.quiz_completed_txt}', style: TextStyle(
+          question_number==11?Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child:Text('${Constants.quiz_completed_txt}', style: TextStyle(
               fontSize: 24, color: MyColors.colorwhite,fontWeight: FontWeight.bold
-          ),):question_number>1?Text('${Constants.quiz_next_txt}', style: TextStyle(
+          ),)):question_number>1?Text('${Constants.quiz_next_txt}', style: TextStyle(
         fontSize: 24, color: MyColors.colorwhite,fontWeight: FontWeight.bold
     ),):Text('${Constants.quiz_start_txt}', style: TextStyle(
               fontSize: 24, color: MyColors.colorwhite,fontWeight: FontWeight.bold
@@ -116,7 +124,13 @@ class _QuizState extends State<Quiz> {
         return Padding(
           padding: const EdgeInsets.all(12.0),
           child: GestureDetector(
-            onTap: () =>validateAnswer(index),
+
+            onTap: () {
+              setState(() {
+                Constants.total_time_taken = Constants.total_time_taken +(int.parse(_timercontroller.getTime())+1);
+              });
+              timetaken = (int.parse(_timercontroller.getTime())+1).toString();
+              validateAnswer(index,timetaken);},
             child: Container(
               height: 40,
               decoration: BoxDecoration(
@@ -162,17 +176,40 @@ class _QuizState extends State<Quiz> {
           setState(() {
             _timer.cancel();
             timer.cancel();
-            if(question_number==11){
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Result(),
-                ), //MaterialPageRoute
-              );
-            }
+
 
           });
-        } else {
+        }
+        else if(_start==1) {
+          if(question_number==11){
+            setState(() {
+              _timer.cancel();
+              timer.cancel();
+            });
+            Navigator.of(context).pushReplacement(new PageRouteBuilder(
+                opaque: true,
+                transitionDuration: const Duration(milliseconds: 500),
+                pageBuilder: (BuildContext context, _, __) {
+                  return Result();
+                },
+                transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+
+                  return new SlideTransition(
+                    child: child,
+                    position: new Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                  );
+                }
+            ));
+          }
+          else{
+            setState(() {
+              _start--;
+            });
+          }
+        }else {
           setState(() {
             _start--;
           });
@@ -203,15 +240,14 @@ class _QuizState extends State<Quiz> {
     isTimerTextShown: true,
     autoStart: true,
     onStart: () {
-      print('Countdown Started');
+
     },
     onComplete: () {
-      print('Countdown Completed');
       setState(() {
         question_number +=1;
         Constants.not_answered +=1;
         marks = {'question':'${_questions[question_number-1]['question']}','answered':'Not Answered',
-          'correct':'${_questions[question_number-1]['E']}','result':'2'};
+          'correct':'${_questions[question_number-1]['E']}','result':'2','time_taken':'-'};
         Constants.marks_details_list.add(marks);
         _start = 5;
 
@@ -244,7 +280,7 @@ class _QuizState extends State<Quiz> {
     });
   }
 
-  validateAnswer(int option) {
+  validateAnswer(int option,String timetaken) {
 
     _timercontroller.pause();
 
@@ -264,14 +300,14 @@ class _QuizState extends State<Quiz> {
     if((_questions[question_number-1][selectedOption])==(_questions[question_number-1]['E'])){
       Constants.correct_answers += 1;
       marks = {'question':'${_questions[question_number-1]['question']}','answered':'${_questions[question_number-1][selectedOption]}',
-        'correct':'${_questions[question_number-1]['E']}','result':'0'};
+        'correct':'${_questions[question_number-1]['E']}','result':'0','time_taken':'${timetaken}'};
       correctAnswerAlert();
 
     }
     else{
       Constants.wrong_answers +=1;
       marks = {'question':'${_questions[question_number-1]['question']}','answered':'${_questions[question_number-1][selectedOption]}',
-        'correct':'${_questions[question_number-1]['E']}','result':'1'};
+        'correct':'${_questions[question_number-1]['E']}','result':'1','time_taken':'${timetaken}'};
       wrongAnswerAlert();
     }
 
@@ -280,9 +316,6 @@ class _QuizState extends State<Quiz> {
       Constants.marks_details_list.add(marks);
 
     });
-    print('Result is Correct Answers : ${Constants.correct_answers}');
-    print('Result is Wrong Answers : ${Constants.wrong_answers}');
-    print('Result is Not Answerd : ${Constants.not_answered}');
   }
 
   correctAnswerAlert() {
@@ -322,6 +355,7 @@ class _QuizState extends State<Quiz> {
     // show the dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return alert;
       },
@@ -365,11 +399,14 @@ class _QuizState extends State<Quiz> {
     // show the dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return alert;
       },
     );
   }
+
+
 
 
 }

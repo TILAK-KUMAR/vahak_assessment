@@ -64,12 +64,25 @@ class _HomeState extends State<Home> {
         return Padding(
           padding: const EdgeInsets.all(12.0),
           child: GestureDetector(
-            onTap: ()=> Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeDetails(catagory: _list[index],),
-              ), //MaterialPageRoute
-            ),
+            onTap: (){
+              Navigator.of(context).push(new PageRouteBuilder(
+                  opaque: true,
+                  transitionDuration: const Duration(milliseconds: 500),
+                  pageBuilder: (BuildContext context, _, __) {
+                    return HomeDetails(catagory: _list[index],);
+                  },
+                  transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+
+                    return new SlideTransition(
+                      child: child,
+                      position: new Tween<Offset>(
+                        begin: const Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                    );
+                  }
+              ));
+            },
             child: Container(
               height: 50,
               decoration: BoxDecoration(

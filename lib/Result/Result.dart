@@ -112,35 +112,44 @@ class _ResultState extends State<Result> {
           ),
         ],
       ),
-    child: Padding(
-      padding: EdgeInsets.symmetric(vertical:18.0,horizontal: 10.0),
-      child: PieChart(
-        dataMap: resultMap,
-        animationDuration: Duration(seconds: 3),
-        chartLegendSpacing: 32,
-        chartRadius: MediaQuery.of(context).size.width / 3.2,
-        colorList: colorList,
-        initialAngleInDegree: 0,
-        chartType: ChartType.ring,
-        ringStrokeWidth: 32,
-        centerText: '${Constants.correct_answers}',
-        legendOptions: LegendOptions(
-          showLegendsInRow: false,
-          legendPosition: LegendPosition.right,
-          showLegends: true,
-          // legendShape: _BoxShape.circle,
-          legendTextStyle: TextStyle(
-            fontWeight: FontWeight.bold,
+    child: Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical:18.0,horizontal: 10.0),
+          child: PieChart(
+            dataMap: resultMap,
+            animationDuration: Duration(seconds: 3),
+            chartLegendSpacing: 32,
+            chartRadius: MediaQuery.of(context).size.width / 3.2,
+            colorList: colorList,
+            initialAngleInDegree: 0,
+            chartType: ChartType.ring,
+            ringStrokeWidth: 32,
+            centerText: '${Constants.correct_answers}',
+            legendOptions: LegendOptions(
+              showLegendsInRow: false,
+              legendPosition: LegendPosition.right,
+              showLegends: true,
+              // legendShape: _BoxShape.circle,
+              legendTextStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            chartValuesOptions: ChartValuesOptions(
+              showChartValueBackground: true,
+              showChartValues: true,
+              showChartValuesInPercentage: false,
+              showChartValuesOutside: true,
+              decimalPlaces: 1,
+            ),
           ),
         ),
-        chartValuesOptions: ChartValuesOptions(
-          showChartValueBackground: true,
-          showChartValues: true,
-          showChartValuesInPercentage: false,
-          showChartValuesOutside: true,
-          decimalPlaces: 1,
-        ),
-      ),
+        Padding(
+          padding: const EdgeInsets.only(bottom:18.0),
+          child: Text('You have completed quiz in ${Constants.total_time_taken} seconds',style: TextStyle(
+              fontSize: 16,fontWeight: FontWeight.bold,color: Colors.grey[400])),
+        )
+      ],
     )
   );
 
@@ -187,6 +196,11 @@ class _ResultState extends State<Result> {
                   ),
                   Text('Correct Answer : ${Constants.marks_details_list[index]['correct']}',style: TextStyle(
                       fontSize: 12,color: MyColors.buttonColor),softWrap: false),
+                  Constants.marks_details_list[index]['time_taken']=='-'?Text('Answered In : Not Answered',style: TextStyle(
+                      fontSize: 12,color: Colors.grey),softWrap: false):
+                  Constants.marks_details_list[index]['time_taken']=='1'?Text('Answered In : ${Constants.marks_details_list[index]['time_taken']} second',style: TextStyle(
+                      fontSize: 12,color: Colors.grey),softWrap: false):Text('Answered In : ${Constants.marks_details_list[index]['time_taken']} seconds',style: TextStyle(
+                      fontSize: 12,color: Colors.grey),softWrap: false),
                 ],
               ),
               Constants.marks_details_list[index]['result']=='0'?Container(

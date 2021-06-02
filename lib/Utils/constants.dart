@@ -24,9 +24,11 @@ class Constants{
   static int correct_answers = 0;
   static int wrong_answers = 0;
   static int not_answered = 0;
+  static int total_time_taken = 0;
   static String report_summary = 'Summary of your Report';
   static String max_marks = 'Maximum marks can be scored is 10';
   static List marks_details_list =[];
+  static List marks_time_list =[];
   static List elephant_questions = [{'question':'Largest existing land animal is ','A':'Blue Whale','B':'Lion',
   'C':'Elephant','D':'Tiger','E':'Elephant'},
     {'question':'How many bones Elephants have','A':'326–351','B':'250-300',
